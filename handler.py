@@ -1,29 +1,19 @@
-from ortools.algorithms import pywrapknapsack_solver
-from info import info
+import json
+import ortools.algorithms.pywrapknapsack_solver
 
-# https://developers.google.com/optimization/pack/knapsack#python_4
+# See: https://developers.google.com/optimization/pack/knapsack#python_4
 
-def main():
+def handle(pb2_request, repo_path):
+  knapsack_instance = json.loads(pb2_request.input)
+
+  values = knapsack_instance["values"]
+  weights = knapsack_instance["weights"]
+  capacities = knapsack_instance["capacities"]
+
   # Create the solver.
-  solver = pywrapknapsack_solver.KnapsackSolver(
-    pywrapknapsack_solver.KnapsackSolver.
+  solver = ortools.algorithms.pywrapknapsack_solver.KnapsackSolver(
+    ortools.algorithms.pywrapknapsack_solver.KnapsackSolver.
     KNAPSACK_MULTIDIMENSION_BRANCH_AND_BOUND_SOLVER, 'KnapsackExample')
-
-  values = [
-    360, 83, 59, 130, 431, 67, 230, 52, 93, 125, 670, 892, 600, 38, 48, 147,
-    78, 256, 63, 17, 120, 164, 432, 35, 92, 110, 22, 42, 50, 323, 514, 28,
-    87, 73, 78, 15, 26, 78, 210, 36, 85, 189, 274, 43, 33, 10, 19, 389, 276,
-    312
-  ]
-  weights = [[
-    7, 0, 30, 22, 80, 94, 11, 81, 70, 64, 59, 18, 0, 36, 3, 8, 15, 42, 9, 0,
-    42, 47, 52, 32, 26, 48, 55, 6, 29, 84, 2, 4, 18, 56, 7, 29, 93, 44, 71,
-    3, 86, 66, 31, 65, 0, 79, 20, 65, 52, 13
-  ]]
-  capacities = [850]
-
-  info(values)
-  info(weights[0])
 
   solver.Init(values, weights, capacities)
   computed_value = solver.Solve()
@@ -31,16 +21,13 @@ def main():
   packed_items = []
   packed_weights = []
   total_weight = 0
-  print('Total value =', computed_value)
+  answer_text = f'Total value = {computed_value}\n'
   for i in range(len(values)):
     if solver.BestSolutionContains(i):
       packed_items.append(i)
       packed_weights.append(weights[0][i])
       total_weight += weights[0][i]
-  print('Total weight:', total_weight)
-  print('Packed items:', packed_items)
-  print('Packed_weights:', packed_weights)
-
-
-if __name__ == '__main__':
-  main()
+  answer_text += f'Total weight: {total_weight}\n'
+  answer_text += f'Packed items: {packed_items}\n'
+  answer_text += f'Packed_weights: {packed_weights}\n'
+  return answer_text

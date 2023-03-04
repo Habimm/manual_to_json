@@ -1,4 +1,5 @@
 from ortools.algorithms import pywrapknapsack_solver
+from info import info
 
 # https://developers.google.com/optimization/pack/knapsack#python_4
 
@@ -20,6 +21,9 @@ def main():
     3, 86, 66, 31, 65, 0, 79, 20, 65, 52, 13
   ]]
   capacities = [850]
+
+  info(values)
+  info(weights[0])
 
   solver.Init(values, weights, capacities)
   computed_value = solver.Solve()

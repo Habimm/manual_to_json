@@ -1,33 +1,38 @@
+from info import info
 import json
-import ortools.algorithms.pywrapknapsack_solver
+import re
 
-# See: https://developers.google.com/optimization/pack/knapsack#python_4
+# See: https://www.ibm.com/docs/en/icos/12.9.0?topic=problem-typical-integer-program-knapsack
 
 def handle(pb2_request, repo_path):
-  knapsack_instance = json.loads(pb2_request.input)
+  manual = pb2_request.input.decode('utf-8')
+  info(manual)
 
-  values = knapsack_instance["values"]
-  weights = knapsack_instance["weights"]
-  capacities = knapsack_instance["capacities"]
+  several_lines = manual.split('\n')
+  line_1 = several_lines[0]
+  line_2 = several_lines[1]
+  line_3 = several_lines[2]
 
-  # Create the solver.
-  solver = ortools.algorithms.pywrapknapsack_solver.KnapsackSolver(
-    ortools.algorithms.pywrapknapsack_solver.KnapsackSolver.
-    KNAPSACK_MULTIDIMENSION_BRANCH_AND_BOUND_SOLVER, 'KnapsackExample')
+  capacity = int(line_1)
+  capacities = [capacity]
 
-  solver.Init(values, weights, capacities)
-  computed_value = solver.Solve()
+  values = line_2.split()
+  values = [int(value) for value in values]
 
-  packed_items = []
-  packed_weights = []
-  total_weight = 0
-  answer_text = f'Total value = {computed_value}\n'
-  for i in range(len(values)):
-    if solver.BestSolutionContains(i):
-      packed_items.append(i)
-      packed_weights.append(weights[0][i])
-      total_weight += weights[0][i]
-  answer_text += f'Total weight: {total_weight}\n'
-  answer_text += f'Packed items: {packed_items}\n'
-  answer_text += f'Packed_weights: {packed_weights}\n'
-  return answer_text
+  weights = line_3.split()
+  weights = [int(weight) for weight in weights]
+  weights = [weights]
+
+  info(capacities)
+  info(values)
+  info(weights)
+
+  standard_encoding = {
+    "capacities": capacities,
+    "values": values,
+    "weights": weights,
+  }
+
+  standard_encoding = json.dumps(standard_encoding, indent=2)
+
+  return standard_encoding
